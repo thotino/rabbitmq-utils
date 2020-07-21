@@ -42,11 +42,16 @@ const deleteQueue = exports.deleteQueue = function deleteQueue(queue) {
   }).catch(console.warn);
 };
 
-const publishQueue = exports.publishQueue = function publishQueue(queue, message) {
+const publishQueue = exports.publishQueue = function publishQueue(queue, message, options) {
   return connect().then((channel) => {
     return channel.assertQueue(queue, {durable: false})
       .then((replies) => {
-        return channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)));
+        if(!options) {
+          return channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)));
+        } else {
+          return channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)), options);
+        }
+        
       });
   }).catch(console.warn);
 };
@@ -60,6 +65,23 @@ const consumeQueue = exports.consumeQueue = function consumeQueue(queue) {
             console.log(msg.content.toString());
             channel.ack(msg);
           }
+        });
+      });
+  }).catch(console.warn);
+};
+
+const readQueue = exports.readQueue = function readQueue(queue) {
+  return connect().then((channel) => {
+    return channel.assertQueue(queue, { durable: false })
+      .then((replies) => {
+        return channel.get(queue)
+        .then((msg) => {
+          if (msg !== null) {
+            console.log(msg.content.toString());
+            channel.ack(msg);
+            return msg;
+          } else { return null; }
+
         });
       });
   }).catch(console.warn);
