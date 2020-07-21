@@ -78,7 +78,7 @@ const consumeQueueWith = exports.consumeQueueWith = function consumeQueueWith(qu
         return channel.consume(queue, (msg) => {
           if (msg !== null && typeof treatmentFunction === "function") {
             console.log(msg.content.toString());
-            const curObject = JSON.parse(message.content.toString())
+            const curObject = JSON.parse(msg.content.toString())
             channel.ack(msg);
             return treatmentFunction(curObject);
           }
