@@ -34,9 +34,11 @@ const connect = function connect(url = "amqp://localhost") {
     .then((channel) => { return channel; });
 };
 
+
+
 const publishQueue = exports.publishQueue = function publishQueue(queue, message) {
   return connect().then((channel) => {
-    return channel.assertQueue(queue)
+    return channel.assertQueue(queue, {durable: true})
       .then((replies) => {
         return channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)));
       });
@@ -45,7 +47,7 @@ const publishQueue = exports.publishQueue = function publishQueue(queue, message
 
 const consumeQueue = exports.consumeQueue = function consumeQueue(queue) {
   return connect().then((channel) => {
-    return channel.assertQueue(queue)
+    return channel.assertQueue(queue, { durable: true })
       .then((replies) => {
         return channel.consume(queue, (msg) => {
           if (msg !== null) {
