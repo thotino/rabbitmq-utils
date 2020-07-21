@@ -71,6 +71,21 @@ const consumeQueue = exports.consumeQueue = function consumeQueue(queue) {
   }).catch(console.warn);
 };
 
+const consumeQueueWith = exports.consumeQueueWith = function consumeQueueWith(queue, treatmentFunction) {
+  return connect().then((channel) => {
+    return channel.assertQueue(queue, { durable: false })
+      .then((replies) => {
+        return channel.consume(queue, (msg) => {
+          if (msg !== null && typeof treatmentFunction === "function") {
+            console.log(msg.content.toString());
+            channel.ack(msg);
+            return treatmentFunction(msg);
+          }
+        });
+      });
+  }).catch(console.warn);
+};
+
 const readQueue = exports.readQueue = function readQueue(queue) {
   return connect().then((channel) => {
     return channel.assertQueue(queue, { durable: false })
