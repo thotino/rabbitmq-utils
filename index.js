@@ -64,6 +64,7 @@ const consumeQueue = exports.consumeQueue = function consumeQueue(queue) {
           if (msg !== null) {
             console.log(msg.content.toString());
             channel.ack(msg);
+            return msg;
           }
         });
       });
