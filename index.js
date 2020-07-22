@@ -78,7 +78,7 @@ const consumeQueueWith = exports.consumeQueueWith = function consumeQueueWith(qu
         return channel.consume(queue, (msg) => {
           if (msg !== null && typeof treatmentFunction === "function") {
             console.log(msg.content.toString());
-            const curObject = JSON.parse(msg.content.toString())
+            const curObject = JSON.parse(msg.content.toString());
             channel.ack(msg);
             return treatmentFunction(curObject);
           }
@@ -99,6 +99,25 @@ const readQueue = exports.readQueue = function readQueue(queue) {
             return msg;
           } else { return null; }
 
+        });
+      });
+  }).catch(console.warn);
+};
+
+const consumeAndReplyWith = exports.consumeAndReplyWith = function consumeAndReplyWith(queue, treatmentFunction) {
+  return connect().then((channel) => {
+    return channel.assertQueue(queue, { durable: false })
+      .then((replies) => {
+        return channel.consume(queue, (msg) => {
+          if(msg !== null && typeof treatmentFunction === "function") {
+            const curObject = JSON.parse(msg.content.toString());
+            const response = treatmentFunction(curObject);
+            const replyQueue = msg.properties.replyTo;
+            const correlationID = msg.properties.correlationId;
+            channel.ack(msg);
+            return publishQueue(replyQueue, response, { correlationId: correlationID });
+          }
+          
         });
       });
   }).catch(console.warn);
