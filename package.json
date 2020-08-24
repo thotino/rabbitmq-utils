@@ -33,7 +33,6 @@
   },
   "config": {},
   "dependencies": {
-    "bluebird": "3.7.2",
     "amqplib": "0.6.0"
   },
   "devDependencies": {

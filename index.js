@@ -12,7 +12,6 @@
 //================================================================================
 // dependencies
 //================================================================================
-const Promise = require("bluebird");
 const amqplib = require("amqplib");
 
 //================================================================================
@@ -28,7 +27,7 @@ const amqplib = require("amqplib");
 //================================================================================
 // module
 //================================================================================
-const connect = function connect(url = "amqp://localhost") {
+const connect = function connect(url = process.env.TRANSPORTER) {
   return amqplib.connect(url).then((conn) => { return conn.createChannel(); })
     .then((channel) => { return channel; });
 };
